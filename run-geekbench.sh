@@ -1,9 +1,10 @@
 #!/bin/bash
 # 自动获取最新版 Geekbench 并进行 CPU 跑分。
-# 新增功能：支持用户确认、自定义下载链接，并提供下载失败重试功能。
+# 默认使用固定链接或手动输入链接。
 
 # --- 变量定义 ---
-DOWNLOAD_URL="https://www.geekbench.com/download/"
+# 默认下载链接
+DEFAULT_GEEKBENCH_URL="https://cdn.geekbench.com/Geekbench-6.4.0-Linux.tar.gz"
 LOG_FILE="geekbench_$(date +%Y%m%d%H%M%S).log"
 GEEKBENCH_URL="" # 用于存储最终使用的下载链接
 TAR_FILE=""
@@ -28,29 +29,36 @@ check_command curl
 check_command tar
 check_command wget
 
-# 2. 尝试获取并确认下载链接
-echo "正在尝试从官网获取最新版下载链接..."
-LATEST_LINK=$(curl -s "$DOWNLOAD_URL" | grep -o -E "https://[a-zA-Z0-9.-]*geekbench\.com/Geekbench-[0-9]+(\.[0-9]+)*-Linux\.tar\.gz" | head -n 1)
+# 2. 获取并确认下载链接
+echo "----------------------------------------------------"
+echo "请选择你的下载方式："
+echo "1) 默认使用 Geekbench 6.4.0 "
+echo "2) 手动输入最新版下载链接（请从官网获取：https://www.geekbench.com/download/linux/）"
+echo "----------------------------------------------------"
 
-if [ -n "$LATEST_LINK" ]; then
-echo "已找到最新下载链接：$LATEST_LINK"
-    read -p "是否使用此链接进行下载 (y/n)? " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        GEEKBENCH_URL="$LATEST_LINK"
-    fi
-fi
+read -p "请输入你的选择 (1 或 2): " choice
+echo
 
-# 如果 GEEKBENCH_URL 仍为空，或者用户选择不使用自动链接，则进入手动输入循环
-while [ -z "$GEEKBENCH_URL" ] || [ -n "$GEEKBENCH_URL" ] && ! wget -q --spider "$GEEKBENCH_URL"; do
-    if [ -z "$GEEKBENCH_URL" ]; then
-        echo "警告：无法自动获取最新版下载链接。"
-        read -p "手动输入最新版下载链接： " GEEKBENCH_URL
-    else
-        echo "错误：你提供的链接无法访问，请检查后重试。" >&2
-        read -p "请输入新的下载链接： " GEEKBENCH_URL
-    fi
-done
+case "$choice" in
+    1)
+        GEEKBENCH_URL="$DEFAULT_GEEKBENCH_URL"
+        echo "已选择默认链接：$GEEKBENCH_URL"
+        ;;
+    2)
+        while [ -z "$GEEKBENCH_URL" ] || [ -n "$GEEKBENCH_URL" ] && ! wget -q --spider "$GEEKBENCH_URL"; do
+            if [ -z "$GEEKBENCH_URL" ]; then
+                read -p "请输入最新版下载链接： " GEEKBENCH_URL
+            else
+                echo "错误：你提供的链接无法访问，请检查后重试。" >&2
+                read -p "请输入新的下载链接： " GEEKBENCH_URL
+            fi
+        done
+        ;;
+    *)
+        echo "无效的选择，脚本终止。"
+        exit 1
+        ;;
+esac
 
 TAR_FILE=$(basename "$GEEKBENCH_URL")
 DIR_NAME=$(basename "$TAR_FILE" .tar.gz)
@@ -85,11 +93,11 @@ cd "$DIR_NAME" || exit 1
 
 echo "CPU 基准测试已完成，结果已保存到日志文件：$LOG_FILE"
 
-# 5. 可选清理
+# 5. 可选清理 (回车默认清理)
 echo
-read -p "是否要清理下载的压缩包和解压目录 (y/n)? " -n 1 -r
+read -p "是否要清理下载的压缩包和解压目录 (回车默认清理, 'n'保留)? " -r REPLY
 echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ ! "$REPLY" =~ ^[Nn]$ ]]; then
     cd ..
     rm -rf "$DIR_NAME"
     rm -f "$TAR_FILE"
