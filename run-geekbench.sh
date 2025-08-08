@@ -12,7 +12,8 @@ DIR_NAME=""
 # --- 函数定义 ---
 # 检查命令是否存在的函数
 check_command() {
-    if ! command-v "$1" &>/dev/null
+    # 检查 /usr/bin/curl 文件是否存在，而不是依赖 PATH
+    if [ ! -f /usr/bin/"$1" ]
     then
         echo "错误：命令 '$1' 未安装。请安装后重试。"
         exit 1
