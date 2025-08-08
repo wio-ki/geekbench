@@ -30,8 +30,10 @@ check_command wget
 
 # 2. 尝试获取并确认下载链接
 echo "正在尝试从官网获取最新版下载链接..."
-LATEST_LINK=$(curl -s "$DOWNLOAD_URL" | grep -o -E "https://[a-zA-Z0-9.-]*geekbench\.com/Geekbench-[0-9]+(\.[0-9]+)*-Linux\.tar\.gz" | head -n 1)if [ -n "$LATEST_LINK" ]; then
-    echo "已找到最新下载链接：$LATEST_LINK"
+LATEST_LINK=$(curl -s "$DOWNLOAD_URL" | grep -o -E "https://[a-zA-Z0-9.-]*geekbench\.com/Geekbench-[0-9]+(\.[0-9]+)*-Linux\.tar\.gz" | head -n 1)
+
+if [ -n "$LATEST_LINK" ]; then
+echo "已找到最新下载链接：$LATEST_LINK"
     read -p "是否使用此链接进行下载 (y/n)? " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
