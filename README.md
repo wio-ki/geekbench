@@ -9,6 +9,7 @@ bash <(curl -s [https://raw.githubusercontent.com/wio-ki/geekbench/main/run-geek
 
 
 #### 使用 `wget`
+
 ```bash
 bash <(wget -qO- [https://raw.githubusercontent.com/wio-ki/geekbench/main/run-geekbench.sh](https://raw.githubusercontent.com/wio-ki/geekbench/main/run-geekbench.sh))
 
