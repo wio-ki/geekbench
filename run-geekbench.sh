@@ -1,5 +1,5 @@
 #!/bin/bash
-# 自动获取最新版 Geekbench 并进行 CPU 跑分。
+# Geekbench 6 CPU 跑分。
 # 默认使用固定链接或手动输入链接。
 
 # --- 变量定义 ---
@@ -32,12 +32,17 @@ check_command wget
 # 2. 获取并确认下载链接
 echo "----------------------------------------------------"
 echo "请选择你的下载方式："
-echo "1) 默认使用 Geekbench 6.4.0 "
+echo "1) 默认使用 Geekbench 6.4.0 (稳定版)"
 echo "2) 手动输入最新版下载链接（请从官网获取：https://www.geekbench.com/download/linux/）"
 echo "----------------------------------------------------"
 
-read -p "请输入你的选择 (1 或 2): " choice
+read -p "请输入你的选择 (回车默认选择1): " choice
 echo
+
+# 检查输入是否为空，如果是则默认选择 1
+if [ -z "$choice" ]; then
+    choice=1
+fi
 
 case "$choice" in
     1)
