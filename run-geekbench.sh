@@ -98,13 +98,15 @@ echo "CPU 基准测试已完成，结果已保存到日志文件：$LOG_FILE"
 
 # 5. 可选清理 (回车默认清理)
 echo
-read -p "是否要清理下载的压缩包和解压目录 (回车默认清理, 'n'保留)? " -r REPLY
+read -p "是否要清理下载的压缩包、解压目录和日志文件 (回车默认清理, 'n'保留)? " -r REPLY
 echo
 if [[ ! "$REPLY" =~ ^[Nn]$ ]]; then
+    # 清理所有文件
     cd ..
     rm -rf "$DIR_NAME"
     rm -f "$TAR_FILE"
-    echo "文件已清理。"
+    rm -f "$LOG_FILE"
+    echo "所有相关文件已清理。"
 else
     echo "文件已保留。"
 fi
